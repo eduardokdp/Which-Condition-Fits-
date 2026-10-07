@@ -15,12 +15,12 @@ This project proposes a multi-label classifier that:
 
 ## Team
 
-| Name | Contributions |
-|---|---|
-| Niyaaz Baines |
-| Eduardo Kallina de Paula |
-| Thiago Vasconcelos Pinheiro Lopes |
-| Priyanshkumar Ghanshyambhai Patel |
+| Name | Milestone 1: Proposal | Milestone 2: Literature Review |
+|---|---|---|
+| Niyaaz Baines | Problem definition (1.1) | History, Abstract |
+| Eduardo Kallina de Paula | Motivation, motivating example, gaps in existing solutions (1.2–1.2.2) | Introduction, Positioning |
+| Thiago Vasconcelos Pinheiro Lopes | Formal problem definition, running example (1.3–1.3.1) | Hierarchy, Taxonomy |
+| Priyanshkumar Ghanshyambhai Patel | Abstract | Comparative Analysis, Table |
 
 ## Repository Structure
 
