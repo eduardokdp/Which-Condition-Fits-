@@ -1,0 +1,102 @@
+\documentclass[sigconf]{acmart}
+\usepackage{graphicx} 
+
+\pagestyle{fancy} 
+\settopmatter{printacmref=false} 
+\renewcommand\footnotetextcopyrightpermission[1]{} 
+\pagestyle{plain}
+\fancyhead{}
+\settopmatter{printacmref=false, printfolios=false}
+\setcopyright{none}
+
+\settopmatter{printacmref=false} 
+\acmDOI{}
+
+
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\setlength{\headsep}{0pt}
+\setlength{\topskip}{0pt}
+\setlength{\topmargin}{0pt}
+\setlength{\topsep}{0pt}
+\setlength{\partopsep}{0pt}
+\usepackage{mdwlist}
+\usepackage{amsmath}
+
+
+
+
+\begin{document}
+\title{Data Mining Diagnosis}
+\author{Niyaaz Baines, Eduardo Kallina de Paula, Thiago Lopes, Priyansh Patel}
+\affiliation{\institution{University of Victoria}}
+\email{nbaines@uvic.ca, ekallinadepaula@uvic.ca, thiagovplopes@uvic.ca, priyanshkumarghansh1@uvic.ca}
+
+
+\maketitle
+\vspace{-1.5em}
+
+\section{Problem Definition}
+\subsection{Define a Data Mining/Machine Learning Problem}
+The problem we have defined is that people often have trouble deciding what their exact mental health problem is. Accurate information is important in this context as wrong diagnosis can lead to incorrect treatment, which either does not fix the problem or makes it even worse. Currently existing AI models that rely on multi-class text classification have the issue of dealing with overlapping symptoms and the patient not being clear on what and how they are feeling. The input data we will use to train our model will consist of anonymous mental health patient forums, clinical assessment and expert annotated text, and databases on mental illnesses and their definitions. The ideal goal of our model is to use multi-label text classification to map a patient’s symptoms to the most likely psychological condition as well as any secondary diagnoses they may have.
+
+
+
+\subsection{Establish Motivation and Significance}
+
+Consider someone who writes in a forum post, “I can’t focus on anything, I feel restless and I’ve been more irritable than usual.” At face value, this description could be consistent with ADHD, anxiety, or depression. ADHD and anxiety, for example, share several symptoms, making diagnosis difficult \cite{integrativepsych2026adhdanxiety}. The consequences of misdiagnosis can be significant: a decade-long study following 388,000 adults found that before receiving a correct ADHD diagnosis, the average patient had tried 2.6 different antidepressants without benefit, while diagnosis was delayed by approximately six to seven years \cite{additude2024adhddepression}. ADHD also frequently occurs alongside anxiety and depression, with individuals experiencing multiple conditions potentially facing greater burden and reduced treatment effectiveness \cite{liu2025adhdcomorbidity}.
+
+\subsubsection{Motivating Example}
+
+Returning to the example above, consider a system that takes the sentence “I can’t focus on anything, I feel restless and I’ve been more irritable than usual.” and determines that the description is consistent with both ADHD and anxiety. If the system could also explain which specific phrases contributed to each prediction, the feedback received would give the individual a much better idea of what to actually ask a professional about. This eliminates the uncertainty, for example, the restlessness could be associated with anxiety, but it could also be relevant to ADHD or another condition. Rather than presenting a single definitive answer, the system could highlight this ambiguity and show how the same symptom description can correspond to multiple conditions.
+
+\subsubsection{Gaps in Existing Solutions}
+
+Several methods have already been used to identify mental health conditions from text. The CLPsych shared a paper that established benchmarks for detecting depression and PTSD from Twitter data using self-reported diagnosis \cite{coppersmith2015clpsych}, and later work such as SMHD expanded on this to eleven conditions using neural multitask learning \cite{cohan2018smhd}. However, many existing approaches are designed and evaluated as single-condition detection tasks, meaning a model is trained to factor out one condition from a control group, or one condition from another in isolation. The problem is this approach does not fully capture the challenge created by overlapping symptoms. A model that accurately tells an individual with depression from a healthy control does not necessarily demonstrate that it can distinguish depression from conditions such as ADHD or anxiety, since the conditions share much of the same symptoms \cite{liu2025adhdcomorbidity}. Therefore, this project focuses on building and evaluating a classifier on conditions that are commonly confused due to overlapping symptoms, rather than evaluating only its ability to distinguish a condition from a healthy control.
+
+
+\subsection{Problem Definition}
+
+Given a self-reported description of symptoms, identify the single
+condition, from a predefined, overlapping set, whose symptoms most
+closely match the description, along with the specific phrases
+supporting it. Any additional conditions also consistent with the
+description should be identified separately, each with their own
+supporting phrases.
+
+Given a predefined set of mental health conditions
+$D = \{d_1, \allowbreak d_2, \allowbreak \ldots, \allowbreak d_k\}$, a corpus $S$ of self-reported symptoms
+descriptions, and a description $s \in S$ represented as a set of
+phrases $s = \{p_1, \allowbreak p_2, \allowbreak \ldots, \allowbreak p_n\}$, the task is to learn a mapping
+function
+\[f : S \rightarrow (D \times 2^{s}) \times 2^{(D \times 2^{s})}\]
+such that
+\[f(s) = \big( (d^{*}, E^{*}),\ \{(d_1, E_1), \ldots, (d_m, E_m)\} \big),\]
+where $d^{*} \in D$ is the condition whose symptoms most closely match
+$s$, $E^{*} \subseteq s$ is the subset of phrases supporting $d^{*}$,
+and each $(d_i, E_i)$ is a secondary condition $d_i \in D$, distinct
+from $d^{*}$, whose symptoms are also consistent with $s$, together
+with its supporting evidence $E_i \subseteq s$.
+
+\subsubsection{Running Example}
+
+Given the self-reported symptom description posted in a forum,
+$s = \{p_1, p_2, p_3\}$, where $p_1 =$ ``I can't focus on
+anything,'' $p_2 =$ ``I feel restless,'' and $p_3 =$ ``I've been
+more irritable than usual,'' the task is to identify the primary and
+secondary conditions consistent with the symptoms described along
+with their supporting evidence. This is represented as:
+\[
+f(s) = \big( (\text{ADHD}, \{p_1, p_2\}),\ \{(\text{Anxiety}, \{p_2, p_3\})\} \big)
+\]
+
+
+
+
+\begingroup
+\small
+\setlength{\bibsep}{0pt}
+\bibliographystyle{plain}
+\bibliography{Bibliography}
+\endgroup
+\end{document}
