@@ -28,6 +28,7 @@ This project proposes a multi-label classifier that:
 .
 ├── proposal/            # Milestone 1: Project Definition & Team Formation
 ├── literature-review/   # Milestone 2: Background & Related Work
+├── proposed-solution/   # Milestone 3: Solution Design & Implementation
 ├── ...
 └── README.md
 ```
