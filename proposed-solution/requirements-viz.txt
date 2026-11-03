@@ -1,0 +1,2 @@
+# Optional: plotting for scripts/make_figures.py (figures + REPORT.md). Not needed for the pipeline itself.
+matplotlib>=3.8

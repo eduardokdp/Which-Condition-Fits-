@@ -1,0 +1,7 @@
+# Exact versions used to produce the reported results (tested with Python 3.13).
+numpy==2.5.3
+scipy==1.18.1
+pandas==3.0.5
+scikit-learn==1.9.1
+joblib==1.6.0
+PyYAML==6.0.3
