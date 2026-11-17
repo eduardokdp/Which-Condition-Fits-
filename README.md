@@ -68,5 +68,6 @@ For more details, see the `proposed-solution/` directory.
 │   ├── evaluation/                    # Evaluation data, results, and reports
 │   ├── requirements.txt               # Python dependencies
 │   └── requirements-viz.txt           # Visualization dependencies
+├── experiments/                       # Milestone 4: Evaluation (Experimentation)
 └── README.md                          # Project documentation
 ```
