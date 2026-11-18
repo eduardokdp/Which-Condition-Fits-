@@ -78,7 +78,7 @@ Python 3.13 (exact pinned environment) and about 200 MB of disk for the full dat
 
 ```bash
 git clone https://github.com/eduardokdp/Which-Condition-Fits-.git
-cd Which-Condition-Fits-
+cd Which-Condition-Fits-/proposed-solution
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt    # or: conda env create -f environment.yml && conda activate core-diagnosis
