@@ -1,0 +1,8 @@
+# Keep LF line endings on every platform (a Windows checkout with CRLF breaks the bash scripts
+# and changes the hashes of the result files).
+* text=auto eol=lf
+*.sh text eol=lf
+*.pdf binary
+*.png binary
+*.jpg binary
+*.joblib binary
