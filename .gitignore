@@ -1,0 +1,13 @@
+# Repository-wide; proposed-solution/.gitignore lists the pipeline's generated files.
+.DS_Store
+Thumbs.db
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
