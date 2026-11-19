@@ -1,0 +1,63 @@
+# Milestone 4 evaluation on the bundled public Reddit sample (no download needed).
+# Data settings are identical to config/quickstart.yaml; run: python -m src.main experiment --config config/m4_sample.yaml
+run_name: m4_sample
+seed: 42
+
+conditions: [adhd, anxiety, depression]
+
+data:
+  source: csv
+  csv_path: data/raw/reddit_public_sample.csv
+  preprocessed_dir: data/preprocessed
+  community_to_condition: {adhd: adhd, anxiety: anxiety, depression: depression}
+  max_posts_per_community: 350        # balanced: the smallest community has about 360 usable posts
+  min_tokens: 20
+  max_tokens: 600
+  one_post_per_author: true           # no author field in this sample, so this has no effect here
+  split: {train: 0.70, val: 0.15, test: 0.15}
+
+features:
+  ngram_range: [1, 2]
+  min_df: 2
+  max_features: 30000
+  sublinear_tf: true
+
+model:
+  C: 1.0
+  class_weight: balanced
+  max_iter: 2000
+  augment: oof
+  oof_folds: 5
+
+decision:
+  threshold_grid: {start: 0.05, stop: 0.95, step: 0.05}
+
+rationale:
+  delta: 0.01
+  max_fraction: 0.5
+  min_phrases: 1
+
+output_dir: output/m4_sample
+eval_dir: evaluation/results/m4_sample
+ground_truth_dir: evaluation/ground_truth/m4_sample
+
+demo_text: "I can't focus on anything, I feel restless and I've been more irritable than usual."
+
+# ---------------- Milestone 4: evaluation protocol (src/eval/experiment.py) ----------------
+experiment:
+  dataset_name: Bundled public Reddit sample
+  test_size: 0.20            # dev/test split, stratified on the label combination
+  n_folds: 5                 # stratified folds on the dev set, computed once and reused by every method
+  inner_val: 0.15            # share of each training part used only to tune per-condition thresholds
+  bootstrap: 1000            # seeded resamples for test-set CIs and paired differences
+  primary_metric: macro_f1
+  n_jobs: -1                 # parallel fits (results do not depend on this)
+  results_dir: evaluation/results/m4_sample
+  grids:                     # listed simplest first: ties in mean CV macro-F1 go to the earlier entry
+    core:          {C: [0.1, 0.3, 1, 3, 10], ngram_range: [[1, 1], [1, 2]], augment: [oof, "true"]}
+    multiclass_lr: {C: [0.1, 0.3, 1, 3, 10], ngram_range: [[1, 1], [1, 2]]}
+    br_lr:         {C: [0.1, 0.3, 1, 3, 10], ngram_range: [[1, 1], [1, 2]]}
+    chain1:        {C: [0.1, 0.3, 1, 3, 10], ngram_range: [[1, 1], [1, 2]]}
+    knn:           {k: [19, 17, 15, 13, 11, 9, 7, 5, 3, 1]}
+    svm:           {C: [0.01, 0.1, 1, 10]}
+    nb:            {alpha: [1.0, 0.3, 0.1, 0.01]}

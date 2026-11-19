@@ -1,0 +1,71 @@
+# Milestone 4 evaluation on the Reddit Mental Health Dataset (Low et al., 2020; Zenodo 3941387, PDDL 1.0),
+# January-April 2019 window. Download the three raw files first (about 168 MB, not committed):
+#   python -m src.main download --config config/m4_rmhd.yaml      (or: bash scripts/download_data.sh)
+# then run: python -m src.main experiment --config config/m4_rmhd.yaml
+run_name: m4_rmhd
+seed: 42
+
+# Ordered set D of conditions. Each condition is linked to one Reddit community.
+conditions: [adhd, anxiety, depression]
+
+data:
+  source: low2020                     # one CSV per community, Low et al. schema (subreddit, author, date, post)
+  raw_dir: data/raw
+  preprocessed_dir: data/preprocessed
+  zenodo_url: https://zenodo.org/records/3941387/files/{file}?download=1
+  files:
+    adhd: adhd_2019_features_tfidf_256.csv
+    anxiety: anxiety_2019_features_tfidf_256.csv
+    depression: depression_2019_features_tfidf_256.csv
+  community_to_condition: {adhd: adhd, anxiety: anxiety, depression: depression}
+  max_posts_per_community: 3000       # balanced subsample after cleaning (9,000 posts in total)
+  min_tokens: 20
+  max_tokens: 400
+  one_post_per_author: true           # avoids author leakage across splits
+  split: {train: 0.70, val: 0.15, test: 0.15}
+
+features:                             # phi(s): TF-IDF over word uni- and bigrams
+  ngram_range: [1, 2]
+  min_df: 3
+  max_features: 50000
+  sublinear_tf: true
+
+model:                                # order-averaged classifier chain
+  C: 1.0
+  class_weight: balanced
+  max_iter: 2000
+  augment: oof                        # predecessor inputs at training time: oof (cross-fitted) | true (gold labels)
+  oof_folds: 5
+
+decision:
+  threshold_grid: {start: 0.05, stop: 0.95, step: 0.05}
+
+rationale:
+  delta: 0.01                         # minimum probability drop for a phrase to count as evidence
+  max_fraction: 0.5                   # at most ceil(0.5 * n) phrases per condition
+  min_phrases: 1
+
+output_dir: output/m4_rmhd
+eval_dir: evaluation/results/m4_rmhd
+ground_truth_dir: evaluation/ground_truth/m4_rmhd
+
+demo_text: "I can't focus on anything, I feel restless and I've been more irritable than usual."
+
+# ---------------- Milestone 4: evaluation protocol (src/eval/experiment.py) ----------------
+experiment:
+  dataset_name: Reddit Mental Health Dataset (2019)
+  test_size: 0.20            # dev/test split, stratified on the label combination
+  n_folds: 5                 # stratified folds on the dev set, computed once and reused by every method
+  inner_val: 0.15            # share of each training part used only to tune per-condition thresholds
+  bootstrap: 1000            # seeded resamples for test-set CIs and paired differences
+  primary_metric: macro_f1
+  n_jobs: -1                 # parallel fits (results do not depend on this)
+  results_dir: evaluation/results/m4_rmhd
+  grids:                     # listed simplest first: ties in mean CV macro-F1 go to the earlier entry
+    core:          {C: [0.1, 0.3, 1, 3, 10], ngram_range: [[1, 1], [1, 2]], augment: [oof, "true"]}
+    multiclass_lr: {C: [0.1, 0.3, 1, 3, 10], ngram_range: [[1, 1], [1, 2]]}
+    br_lr:         {C: [0.1, 0.3, 1, 3, 10], ngram_range: [[1, 1], [1, 2]]}
+    chain1:        {C: [0.1, 0.3, 1, 3, 10], ngram_range: [[1, 1], [1, 2]]}
+    knn:           {k: [19, 17, 15, 13, 11, 9, 7, 5, 3, 1]}
+    svm:           {C: [0.01, 0.1, 1, 10]}
+    nb:            {alpha: [1.0, 0.3, 0.1, 0.01]}
