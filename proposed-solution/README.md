@@ -72,28 +72,40 @@ files of r/ADHD, r/Anxiety, and r/depression, which come from one collection. Th
 
 ## 4. Prerequisites
 
-Python 3.13 (exact pinned environment) and about 200 MB of disk for the full dataset. No GPU is needed.
+* **Python 3.10 or newer.** Python 3.12 or 3.13 is recommended: only they can install the exact versions in
+  `requirements-lock.txt`, which reproduce the reported numbers and hashes bit for bit. Python 3.10/3.11 use
+  the compatible versions in `requirements.txt`; everything runs, and the last decimals may differ.
+* **bash**: Linux, macOS, WSL, or Git Bash on Windows (Windows without bash: see Section 6.1).
+* On Ubuntu/Debian/WSL the `venv` module is a separate package: `sudo apt install python3-venv`.
+* About 200 MB of disk for the optional full dataset. No GPU is needed.
 
 ## 5. Installation
+
+All code, `requirements*.txt` and `config/` live in **`proposed-solution/`**; run every command below from
+that folder. (The quick-start scripts in Section 6 do all of this for you, from any folder.)
 
 ```bash
 git clone https://github.com/eduardokdp/Which-Condition-Fits-.git
 cd Which-Condition-Fits-/proposed-solution
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -r requirements.txt    # or: conda env create -f environment.yml && conda activate core-diagnosis
+python3 -m venv .venv
+source .venv/bin/activate                 # Windows: .venv\Scripts\activate
+pip install -r requirements-lock.txt      # Python 3.12/3.13: exact versions (reported hashes)
+# or, on Python 3.10/3.11:
+pip install -r requirements.txt -r requirements-viz.txt
 ```
 
-If your Python cannot install the pinned versions, `pip install numpy scipy pandas scikit-learn joblib PyYAML`
-also works, but the last decimals of the results (and the predictions hash) may differ.
+Conda alternative: `conda env create -f environment.yml && conda activate core-diagnosis` (Python 3.13, exact versions).
 
 ## 6. Quick start
 
 ```bash
+cd Which-Condition-Fits-/proposed-solution
 bash quickstart.sh
 ```
 
-The script installs the requirements, runs the 18 unit and reproducibility tests, runs
+The repository root has a `quickstart.sh` shortcut too, so `bash quickstart.sh` also works from there; the script
+always runs inside `proposed-solution/`. It picks a Python (3.13 or 3.12 if available), creates `proposed-solution/.venv` (or reuses an existing one), installs the packages, runs the 26
+unit, protocol and reproducibility tests, runs
 `prepare → train → evaluate → predict` on the bundled sample (about a minute on a laptop), and checks
 that the predictions hash equals `evaluation/results/quickstart/EXPECTED_SHA256`. On Windows:
 
@@ -130,15 +142,15 @@ together (in VS Code: open the file and click *Open Preview*).
 ### 6.1 Running in VS Code (Windows, macOS, Linux)
 
 The repository includes a VS Code workspace, `CoRE.code-workspace`, with ready-made tasks, so the whole
-pipeline runs from the menus without typing commands. Tested from a fresh copy on Windows 11
-(Python 3.12.10) and on Linux (Python 3.13): 18/18 tests pass and the predictions hash matches
-`EXPECTED_SHA256` on both.
+pipeline runs from the menus without typing commands. The Milestone 3 tasks were tested from a fresh copy on
+Windows 11 (Python 3.12.10) and on Linux (Python 3.13), with the predictions hash matching `EXPECTED_SHA256` on
+both; the Milestone 4 additions were tested on Linux (Python 3.13).
 
 **You need**
 
 * [VS Code](https://code.visualstudio.com/) with the **Python** extension (`ms-python.python`; VS Code
   suggests it when you open the workspace).
-* **Python 3.12 or 3.13** on your PATH. Check in a terminal: `py -3 --version` or `python --version`
+* **Python 3.12 or 3.13** (recommended; 3.10+ works) on your PATH. Check in a terminal: `py -3 --version` or `python --version`
   (Windows), `python3 --version` (macOS/Linux). On Windows, install from
   [python.org](https://www.python.org/downloads/) and tick **Add python.exe to PATH**.
 * **Git**, only for cloning and for the optional *Rebuild Reddit sample* task.
@@ -149,12 +161,12 @@ pipeline runs from the menus without typing commands. Tested from a fresh copy o
 1. **Get the code:** `git clone https://github.com/eduardokdp/Which-Condition-Fits-.git`
    (or *Code → Download ZIP* on GitHub and extract it).
 2. **Open the workspace:** in VS Code choose *File → Open Workspace from File…* and select
-   `CoRE.code-workspace` in the repository folder. If you opened the folder instead, click
+   `CoRE.code-workspace` in the `proposed-solution` folder. If you opened the folder instead, click
    **Open Workspace** in the notification VS Code shows. If VS Code asks whether you trust the
    authors, choose **Yes** (tasks do not run in Restricted Mode).
 3. **Set up once:** *Terminal → Run Task… → **Setup: create .venv and install requirements***.
-   This creates `.venv` inside the repository and installs the pinned packages from
-   `requirements.txt` plus matplotlib. It is done when the last line reads `Successfully installed …`.
+   This creates `.venv` inside `proposed-solution/` and installs the exact versions from
+   `requirements-lock.txt` (or, on Python 3.10/3.11, the compatible ones from `requirements.txt` plus matplotlib). It is done when the last line reads `Successfully installed …`.
    On Windows the Setup terminal shows a ⚠ icon; it only means VS Code's shell integration does not
    support `cmd.exe` and is not an error.
 4. **Run everything:** *Terminal → Run Build Task…* (`Ctrl+Shift+B`, macOS `Cmd+Shift+B`) starts
@@ -168,7 +180,7 @@ pipeline runs from the menus without typing commands. Tested from a fresh copy o
 
 | Task | What you should see |
 |---|---|
-| Unit tests | `Ran 18 tests … OK` |
+| Unit tests | `Ran 26 tests … OK` |
 | Pipeline | train / val / test = 735 / 157 / 158 posts; thresholds ADHD 0.50, anxiety 0.45, depression 0.55; CoRE micro-F1 0.6514, macro-F1 0.6561 |
 | Reproducibility check | `Reproducibility check PASSED: 6371861ba7936c0880573caa24c5d576f5e386f477e7faf863195b69189f0aa5` |
 | Figures and REPORT.md | `figures: …/evaluation/results/quickstart/figures` and `report: …/REPORT.md` |
@@ -177,8 +189,9 @@ pipeline runs from the menus without typing commands. Tested from a fresh copy o
 
 | Task | Runs | Writes |
 |---|---|---|
-| Setup: create .venv and install requirements | `python -m venv .venv`, `pip install -r requirements.txt -r requirements-viz.txt` | `.venv/` |
+| Setup: create .venv and install requirements | `python -m venv .venv`, `pip install -r requirements-lock.txt` (falls back to `requirements.txt` + `requirements-viz.txt`) | `.venv/` |
 | Quickstart: run everything | the four tasks below, in order | everything below |
+| Milestone 4: run everything | experiment, figures, report tables (Section 7.1) | `evaluation/results/m4_sample/`, `../experiments/tables/` |
 | Unit tests | `python -m unittest discover -s tests -t . -v` | — |
 | Pipeline: prepare, train, evaluate, predict | `python -m src.main all --config config/quickstart.yaml` | `data/preprocessed/`, `output/`, `evaluation/` |
 | Reproducibility check (predictions hash) | compares `metrics.json` with `EXPECTED_SHA256` | — |
@@ -189,24 +202,24 @@ pipeline runs from the menus without typing commands. Tested from a fresh copy o
 | Figure 1 values | `python scripts/figure1_values.py` | — (prints the numbers in Figure 1) |
 | Rebuild Reddit sample from GitHub | `python scripts/build_public_sample.py` (needs Git) | `data/raw/rebuilt_public_sample.csv` (git-ignored copy) |
 
-**Without the VS Code tasks (any terminal, from the repository folder)**
+**Without the VS Code tasks (any terminal, from the `proposed-solution` folder)**
 
 Windows (PowerShell or Command Prompt). Calling `.venv\Scripts\python` directly avoids the
 execution-policy error that `Activate.ps1` can raise:
 
 ```powershell
 py -3 -m venv .venv                     # or: python -m venv .venv
-.venv\Scripts\python -m pip install -r requirements.txt -r requirements-viz.txt
+.venv\Scripts\python -m pip install -r requirements-lock.txt   # Python 3.10/3.11: -r requirements.txt -r requirements-viz.txt
 .venv\Scripts\python -m unittest discover -s tests -t . -v
 .venv\Scripts\python -m src.main all --config config/quickstart.yaml
 .venv\Scripts\python scripts/make_figures.py --config config/quickstart.yaml
 ```
 
-macOS / Linux (or simply `bash quickstart.sh`):
+macOS / Linux / WSL (or simply `bash quickstart.sh`):
 
 ```bash
 python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt -r requirements-viz.txt
+.venv/bin/python -m pip install -r requirements-lock.txt   # Python 3.10/3.11: -r requirements.txt -r requirements-viz.txt
 .venv/bin/python -m unittest discover -s tests -t . -v
 .venv/bin/python -m src.main all --config config/quickstart.yaml
 .venv/bin/python scripts/make_figures.py --config config/quickstart.yaml
@@ -219,8 +232,11 @@ python3 -m venv .venv
 | *Run Task* lists no CoRE tasks | You opened the folder, not the workspace: *File → Open Workspace from File… → `CoRE.code-workspace`*. |
 | `python is not recognized`, or the Microsoft Store opens | Install Python from python.org with **Add python.exe to PATH** ticked, then restart VS Code. |
 | A task fails with `.venv\Scripts\python.exe` (or `.venv/bin/python`) not found | Run **Setup** first. |
-| `No matching distribution found for numpy==…` | Use Python 3.12 or 3.13. As a last resort, `pip install numpy scipy pandas scikit-learn joblib PyYAML matplotlib` also works, but the last decimals and the hash may differ. |
-| `Reproducibility check: hash differs` | Compare `.venv` package versions (`python -m pip list`) with `requirements.txt`. Line endings no longer matter: every output file is written with LF on all operating systems. |
+| `No matching distribution found for numpy==…` | `requirements-lock.txt` needs Python 3.12 or 3.13. On 3.10/3.11 run `pip install -r requirements.txt -r requirements-viz.txt` (the scripts do this automatically). |
+| `The virtual environment was not created successfully because ensurepip is not available` | Ubuntu/Debian/WSL: `sudo apt install python3-venv` (or `python3.X-venv`), delete the half-made `.venv`, rerun. |
+| `bash: quickstart.sh: No such file or directory` | Run it from the repository root or from `proposed-solution/`; both folders contain `quickstart.sh`. |
+| `$'\r': command not found` | The scripts were checked out with Windows line endings. The repository's `.gitattributes` prevents this on a fresh clone; otherwise run `sed -i 's/\r$//' *.sh scripts/*.sh`. |
+| `Reproducibility check: hash differs` | Expected unless the exact versions were installed: compare `python -m pip list` with `requirements-lock.txt` (Python 3.12/3.13). Line endings do not matter: every output file is written with LF. |
 | `Activate.ps1 cannot be loaded because running scripts is disabled` | Use the tasks, or call `.venv\Scripts\python` directly as shown above. |
 | *Rebuild Reddit sample* says `git was not found on PATH` | Install [Git](https://git-scm.com/) and restart VS Code. |
 | First run on Windows is slow | Antivirus scans the new `.venv` once; later runs are faster. |
@@ -255,9 +271,68 @@ two or more labels. Test set of 158 posts, with seeded bootstrap 95% confidence 
   (comprehensiveness) against 0.019 for the same number of random phrases; the evidence alone keeps the
   prediction (sufficiency −0.084, against +0.069 for random phrases).
 
-Milestone 4 repeats this evaluation on the single-collection Reddit Mental Health Dataset.
+Milestone 4 (Section 7.1) replaces this single split with 5-fold cross-validation, a hyperparameter grid and six baselines.
 
-**Reproducibility.** Every random operation is seeded from `seed` in the config (`src/cmn/seed.py`,
+### 7.1 Milestone 4: cross-validated evaluation
+
+Report: [`../experiments/4_Evaluation_Niyaaz_Eduardo_Thiago_Priyansh.pdf`](../experiments/). One command
+reproduces every number, table and figure in it (about 3 minutes on a laptop):
+
+```bash
+bash reproduce_m4.sh                    # from the repository root or proposed-solution/ (= bash scripts/reproduce_m4.sh)
+                                        # setup -> 26 tests -> experiment -> hash check -> figures -> report tables
+# or step by step:
+python -m src.main experiment --config config/m4_sample.yaml
+python scripts/make_m4_figures.py --results evaluation/results/m4_sample
+python scripts/make_m4_tables.py  --results evaluation/results/m4_sample --out ../experiments/tables
+```
+
+**Protocol** (`src/eval/protocol.py`, saved to `protocol.csv`). One 80/20 dev/test split stratified on
+the label set (seed 42); five stratified folds on the dev set, computed once and used by every method and
+configuration; in each round, features and model are fitted on the training folds minus a stratified 15%
+that is used only to tune the per-condition thresholds. The configuration with the best mean CV macro-F1
+is refitted on the dev set and evaluated once on the test set. `tests/test_m4.py` checks that no test post
+is used in any fit or tuning step, that every method sees the same folds, and that reruns are identical.
+
+**Methods** (`src/eval/registry.py`): CoRE, multiclass logistic regression (one condition per post),
+binary relevance, a single-order classifier chain, k-NN (cosine), linear SVM and Complement Naive Bayes.
+All share the same masked TF-IDF features and, if multi-label, CoRE's decision rule. Grids are in
+`config/m4_sample.yaml` (68 configurations, 340 fits).
+
+**Results** on the bundled sample (1,050 posts; 840 dev, 210 test; 95% bootstrap intervals):
+
+| Method | Selected setting | Macro-F1 (95% CI) | Macro AUC | Micro-F1 | Hamming loss | Recall on multi-condition posts |
+|---|---|---|---|---|---|---|
+| **CoRE** | C = 3, unigrams, out-of-fold inputs | **0.755** (0.715–0.790) | **0.865** | **0.750** | 0.211 | 0.766 |
+| Multiclass LR | C = 10, unigrams | 0.727 (0.674–0.778) | 0.863 | 0.725 | **0.194** | 0.447 |
+| Binary relevance | C = 3, uni+bigrams | 0.732 (0.677–0.778) | 0.854 | 0.731 | 0.213 | 0.723 |
+| Chain (1 order) | C = 3, unigrams | 0.737 (0.696–0.771) | 0.857 | 0.730 | 0.237 | **0.787** |
+| Linear SVM | C = 10 | 0.733 (0.684–0.775) | 0.855 | 0.730 | 0.221 | 0.723 |
+| Naive Bayes | α = 0.1 | 0.686 (0.638–0.728) | 0.831 | 0.682 | 0.270 | 0.638 |
+| k-NN | k = 15 | 0.630 (0.577–0.680) | 0.778 | 0.632 | 0.303 | 0.702 |
+
+CoRE's lead over the multiclass model, binary relevance, the single-order chain and the SVM is not
+significant (paired bootstrap intervals include zero); it is significantly better than Naive Bayes and
+k-NN. Its advantage comes from posts with several conditions (macro-F1 0.835 vs 0.612 for the multiclass
+model), at the cost of predicting anxiety with depression too often. Full outputs:
+
+| File in `evaluation/results/m4_sample/` | Content |
+|---|---|
+| `data_card.json` | dataset statistics and posts removed by each cleaning step |
+| `protocol.csv` | dev/test part, fold and threshold-part membership of every post |
+| `cv_results.csv`, `cv_summary.csv` | every (method, configuration, fold) score; means, s.d. and the selected setting |
+| `best_params.json` | selected configuration per method |
+| `test_predictions.csv` | scores and decisions of every method on the test posts |
+| `test_metrics.json`, `test_metrics.csv` | metrics, bootstrap intervals, paired differences, confusion matrices, subgroups, timing |
+| `EXPECTED_SHA256` | hash of `test_predictions.csv` for the reported run |
+| `figures/` | `rq2_sensitivity` (Figure 1) and `label_set_confusion` (Figure 2), PDF and PNG |
+
+**Second dataset.** `config/m4_rmhd.yaml` runs the same experiment on the Reddit Mental Health Dataset
+(Low et al., 2020; 3,000 posts per community). Download the three 2019 files first
+(`bash scripts/download_data.sh`, about 168 MB, not committed); `scripts/reproduce_m4.sh` then runs it
+automatically. It was not part of the submitted report.
+
+**Reproducibility (Milestone 3).** Every random operation is seeded from `seed` in the config (`src/cmn/seed.py`,
 splits, cross-fitting folds, bootstrap, random rationales), package versions are pinned, and the
 evaluation writes the SHA-256 of its predictions. With the same data, code, config, seed, and package
 versions, a rerun gives `6371861ba7936c0880573caa24c5d576f5e386f477e7faf863195b69189f0aa5`; other
@@ -286,28 +361,35 @@ flowchart TB
 
 ```text
 .
-├── README.md  LICENSE  requirements.txt  requirements-viz.txt  environment.yml  quickstart.sh
+├── README.md  LICENSE  .gitignore  environment.yml
+├── requirements.txt  requirements-viz.txt   compatible versions (Python 3.10+)
+├── requirements-lock.txt                  exact versions of the reported runs (Python 3.12/3.13)
+├── quickstart.sh                         Milestone 3 quick start (Section 6)
+├── reproduce_m4.sh                       Milestone 4 reproduction (Section 7.1; shortcut to scripts/reproduce_m4.sh)
 ├── CoRE.code-workspace  VS Code workspace with ready-made tasks (Section 6.1)
-├── config/            default.yaml (full dataset), quickstart.yaml (bundled sample)
+├── config/            default.yaml (full dataset), quickstart.yaml (bundled sample),
+│                      m4_sample.yaml and m4_rmhd.yaml (Milestone 4 experiments)
 ├── data/raw/          reddit_public_sample.csv; downloaded files land here (git-ignored)
 ├── data/preprocessed/ splits and data card (generated)
-├── src/               main.py, cmn/, dataprep/, core/, eval/
-├── evaluation/        ground_truth/ and results/ of the quickstart run
+├── src/               main.py, cmn/, dataprep/, core/, eval/ (Milestone 4: protocol, registry,
+│                      m4_metrics, experiment)
+├── evaluation/        ground_truth/ and results/ (quickstart: Milestone 3; m4_sample: Milestone 4)
 ├── output/            trained models (generated)
-├── scripts/           download_data.sh, build_public_sample.py, figure1_values.py, make_figures.py
-├── tests/             unit and reproducibility tests
+├── scripts/           quickstart.sh, reproduce_m4.sh, _env.sh (shared setup), download_data.sh, build_public_sample.py,
+│                      figure1_values.py, make_figures.py, make_m4_figures.py, make_m4_tables.py
+├── tests/             unit and reproducibility tests (test_core.py, test_m4.py)
 ├── docs/figures/      Figure 1 of the report
-└── proposed-solution/ Milestone 3 report (LaTeX and PDF)
+└── main.tex, 3_Solution_*.pdf   Milestone 3 report (the Milestone 4 report is in ../experiments/)
 ```
 
 ## 9. Team
 
-| Name | Milestone 1: Proposal | Milestone 2: Literature Review | Milestone 3: Proposed Solution |
-|---|---|---|---|
-| Niyaaz Baines | Problem definition (1.1) | History, Abstract | Formal definition (3.1), abstract, introduction |
-| Eduardo Kallina de Paula | Motivation, motivating example, gaps in existing solutions (1.2–1.2.2) | Introduction, Positioning | Algorithm (3.2), references |
-| Thiago Vasconcelos Pinheiro Lopes | Formal problem definition, running example (1.3–1.3.1) | Hierarchy, Taxonomy | Pseudo-code (3.3), implementation section |
-| Priyanshkumar Ghanshyambhai Patel (lead) | Abstract | Comparative Analysis, Table | Figure 1 (3.4), README, submission |
+| Name | Milestone 1: Proposal | Milestone 2: Literature Review | Milestone 3: Proposed Solution | Milestone 4: Evaluation |
+|---|---|---|---|---|
+| Niyaaz Baines | Problem definition (1.1) | History, Abstract | Formal definition (3.1), abstract, introduction | Research questions (4.2), introduction |
+| Eduardo Kallina de Paula | Motivation, motivating example, gaps in existing solutions (1.2–1.2.2) | Introduction, Positioning | Algorithm (3.2), references | Baselines (4.4) |
+| Thiago Vasconcelos Pinheiro Lopes | Formal problem definition, running example (1.3–1.3.1) | Hierarchy, Taxonomy | Pseudo-code (3.3), implementation section | Benchmark dataset (4.3) |
+| Priyanshkumar Ghanshyambhai Patel (lead) | Abstract | Comparative Analysis, Table | Figure 1 (3.4), README, submission | Evaluation strategy and metrics (4.5), experiments, results, submission |
 
 ## 10. Citation
 
