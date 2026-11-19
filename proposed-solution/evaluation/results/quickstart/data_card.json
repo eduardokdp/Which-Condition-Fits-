@@ -1,0 +1,99 @@
+{
+  "dataset": "Bundled public Reddit sample",
+  "source": "csv",
+  "cleaning_counts": {
+    "raw": 1786,
+    "after_empty_or_removed": 1786,
+    "after_bots": 1786,
+    "after_length_filter": 1691,
+    "after_one_post_per_author": 1691,
+    "after_duplicate_text": 1689,
+    "after_cap": 1050,
+    "final": 1050
+  },
+  "all": {
+    "n": 1050,
+    "positives": {
+      "adhd": 358,
+      "anxiety": 428,
+      "depression": 383
+    },
+    "label_cardinality": 1.1133333333333333,
+    "multi_label_share": 0.11142857142857143,
+    "label_combinations": {
+      "001": 277,
+      "010": 318,
+      "011": 97,
+      "100": 338,
+      "101": 7,
+      "110": 11,
+      "111": 2
+    },
+    "posts_per_community": {
+      "adhd": 350,
+      "anxiety": 350,
+      "depression": 350
+    },
+    "median_tokens": 169.0
+  },
+  "dev": {
+    "n": 840,
+    "positives": {
+      "adhd": 286,
+      "anxiety": 342,
+      "depression": 307
+    },
+    "label_cardinality": 1.1130952380952381,
+    "multi_label_share": 0.11190476190476191,
+    "label_combinations": {
+      "001": 222,
+      "010": 254,
+      "011": 78,
+      "100": 270,
+      "101": 6,
+      "110": 9,
+      "111": 1
+    },
+    "posts_per_community": {
+      "adhd": 278,
+      "anxiety": 279,
+      "depression": 283
+    },
+    "median_tokens": 171.5
+  },
+  "test": {
+    "n": 210,
+    "positives": {
+      "adhd": 72,
+      "anxiety": 86,
+      "depression": 76
+    },
+    "label_cardinality": 1.1142857142857143,
+    "multi_label_share": 0.10952380952380952,
+    "label_combinations": {
+      "001": 55,
+      "010": 64,
+      "011": 19,
+      "100": 68,
+      "101": 1,
+      "110": 2,
+      "111": 1
+    },
+    "posts_per_community": {
+      "adhd": 72,
+      "anxiety": 71,
+      "depression": 67
+    },
+    "median_tokens": 152.5
+  },
+  "tfidf_features_dev": 22070,
+  "features": {
+    "ngram_range": [
+      1,
+      2
+    ],
+    "min_df": 2,
+    "max_features": 30000,
+    "sublinear_tf": true
+  }
+}

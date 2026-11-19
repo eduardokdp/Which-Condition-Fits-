@@ -1,0 +1,40 @@
+{
+  "core": {
+    "C": 3,
+    "ngram_range": [
+      1,
+      1
+    ],
+    "augment": "oof"
+  },
+  "multiclass_lr": {
+    "C": 10,
+    "ngram_range": [
+      1,
+      1
+    ]
+  },
+  "br_lr": {
+    "C": 3,
+    "ngram_range": [
+      1,
+      2
+    ]
+  },
+  "chain1": {
+    "C": 3,
+    "ngram_range": [
+      1,
+      1
+    ]
+  },
+  "knn": {
+    "k": 15
+  },
+  "svm": {
+    "C": 10
+  },
+  "nb": {
+    "alpha": 0.1
+  }
+}
