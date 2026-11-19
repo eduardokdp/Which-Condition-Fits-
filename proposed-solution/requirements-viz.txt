@@ -1,2 +1,2 @@
-# Optional: plotting for scripts/make_figures.py (figures + REPORT.md). Not needed for the pipeline itself.
-matplotlib>=3.8
+# Plotting for scripts/make_figures.py and scripts/make_m4_figures.py (not needed by the pipeline itself).
+matplotlib>=3.8,<4
