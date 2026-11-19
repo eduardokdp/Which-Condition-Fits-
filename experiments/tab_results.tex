@@ -1,0 +1,15 @@
+\begin{tabular}{@{}l@{\hspace{4pt}}cccccccccccc@{}}
+\toprule
+& \multicolumn{7}{c}{RQ1: all 210 test posts} & \multicolumn{5}{c}{RQ3: macro-F1 by subgroup (posts)} \\
+\cmidrule(lr){2-8}\cmidrule(l){9-13}
+Method & Macro-F1 [95\% CI] & $\Delta$ & AUC & Micro-F1 & Ham.$\downarrow$ & ML-rec. & Lab. & One {\scriptsize(187)} & Several {\scriptsize(23)} & Short {\scriptsize(86)} & Med. {\scriptsize(61)} & Long {\scriptsize(63)} \\
+\midrule
+\core{} & \textbf{.755} {\scriptsize[.715,.790]} & -- & \textbf{.865} & \textbf{.750} & .211 & .766 & 1.41 & .734 & \textbf{.835} & \textbf{.767} & \textbf{.759} & .701 \\
+Multiclass LR & .727 {\scriptsize[.674,.778]} & +.029 & .863 & .725 & \textbf{.194} & .447 & 1.00 & \textbf{.743} & .612 & .740 & .744 & .625 \\
+Binary relevance & .732 {\scriptsize[.677,.778]} & +.024 & .854 & .731 & .213 & .723 & 1.26 & .713 & .755 & .717 & .721 & \textbf{.705} \\
+Chain (1 order) & .737 {\scriptsize[.696,.771]} & +.018 & .857 & .730 & .237 & \textbf{.787} & 1.51 & .711 & .811 & .743 & .750 & .663 \\
+Linear SVM & .733 {\scriptsize[.684,.775]} & +.022 & .855 & .730 & .221 & .723 & 1.34 & .716 & .755 & .716 & .741 & .689 \\
+Naive Bayes & .686 {\scriptsize[.638,.728]} & +.069$^\ast$ & .831 & .682 & .270 & .638 & 1.43 & .676 & .606 & .652 & .724 & .627 \\
+$k$-NN & .630 {\scriptsize[.577,.680]} & +.125$^\ast$ & .778 & .632 & .303 & .702 & 1.36 & .605 & .703 & .581 & .668 & .531 \\
+\bottomrule
+\end{tabular}
