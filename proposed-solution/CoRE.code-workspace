@@ -1,0 +1,486 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/__pycache__": true
+    },
+    "files.eol": "\n",
+    "workbench.editorAssociations": {
+      "REPORT.md": "vscode.markdown.preview.editor"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Setup: create .venv and install requirements",
+        "detail": "Exact versions (requirements-lock.txt) on Python 3.12/3.13, otherwise compatible versions",
+        "type": "shell",
+        "command": "python3 -m venv .venv && .venv/bin/python -m pip install --upgrade pip && (.venv/bin/python -m pip install -r requirements-lock.txt || .venv/bin/python -m pip install -r requirements.txt -r requirements-viz.txt)",
+        "windows": {
+          "command": "(py -3 -m venv .venv || python -m venv .venv) && .venv\\Scripts\\python.exe -m pip install --upgrade pip && (.venv\\Scripts\\python.exe -m pip install -r requirements-lock.txt || .venv\\Scripts\\python.exe -m pip install -r requirements.txt -r requirements-viz.txt)",
+          "options": {
+            "shell": {
+              "executable": "cmd.exe",
+              "args": [
+                "/d",
+                "/c"
+              ]
+            }
+          }
+        },
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "clear": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Unit tests",
+        "type": "process",
+        "command": "${workspaceFolder}/.venv/bin/python",
+        "windows": {
+          "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+        },
+        "args": [
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-t",
+          ".",
+          "-v"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PYTHONIOENCODING": "utf-8",
+            "PYTHONUNBUFFERED": "1"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "clear": true
+        },
+        "problemMatcher": [],
+        "detail": "18 unit and reproducibility tests",
+        "group": {
+          "kind": "test",
+          "isDefault": true
+        }
+      },
+      {
+        "label": "Pipeline: prepare, train, evaluate, predict",
+        "type": "process",
+        "command": "${workspaceFolder}/.venv/bin/python",
+        "windows": {
+          "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+        },
+        "args": [
+          "-m",
+          "src.main",
+          "all",
+          "--config",
+          "config/quickstart.yaml"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PYTHONIOENCODING": "utf-8",
+            "PYTHONUNBUFFERED": "1"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "clear": true
+        },
+        "problemMatcher": [],
+        "detail": "Full quickstart pipeline on the bundled sample"
+      },
+      {
+        "label": "Reproducibility check (predictions hash)",
+        "type": "process",
+        "command": "${workspaceFolder}/.venv/bin/python",
+        "windows": {
+          "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+        },
+        "args": [
+          "-c",
+          "import json; e=open('evaluation/results/quickstart/EXPECTED_SHA256').read().strip(); g=json.load(open('evaluation/results/quickstart/metrics.json', encoding='utf-8'))['predictions_sha256']; print('Reproducibility check PASSED:' if g == e else 'Reproducibility check: hash differs', g)"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PYTHONIOENCODING": "utf-8",
+            "PYTHONUNBUFFERED": "1"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "clear": true
+        },
+        "problemMatcher": [],
+        "detail": "Compares metrics.json with EXPECTED_SHA256"
+      },
+      {
+        "label": "Figures and REPORT.md",
+        "type": "process",
+        "command": "${workspaceFolder}/.venv/bin/python",
+        "windows": {
+          "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+        },
+        "args": [
+          "scripts/make_figures.py",
+          "--config",
+          "config/quickstart.yaml"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PYTHONIOENCODING": "utf-8",
+            "PYTHONUNBUFFERED": "1"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "clear": true
+        },
+        "problemMatcher": [],
+        "detail": "Writes evaluation/results/quickstart/figures and REPORT.md"
+      },
+      {
+        "label": "Quickstart: run everything",
+        "detail": "Tests, pipeline, hash check and figures, in order",
+        "dependsOrder": "sequence",
+        "dependsOn": [
+          "Unit tests",
+          "Pipeline: prepare, train, evaluate, predict",
+          "Reproducibility check (predictions hash)",
+          "Figures and REPORT.md"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Milestone 4: run everything",
+        "detail": "Experiment, figures and report tables, in order",
+        "dependsOrder": "sequence",
+        "dependsOn": [
+          "Milestone 4: experiment (CV grid + test)",
+          "Milestone 4: figures",
+          "Milestone 4: report tables"
+        ],
+        "problemMatcher": []
+      },
+      {
+        "label": "Milestone 4: experiment (CV grid + test)",
+        "type": "process",
+        "command": "${workspaceFolder}/.venv/bin/python",
+        "windows": {
+          "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+        },
+        "args": [
+          "-m",
+          "src.main",
+          "experiment",
+          "--config",
+          "config/m4_sample.yaml"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PYTHONIOENCODING": "utf-8",
+            "PYTHONUNBUFFERED": "1"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "clear": true
+        },
+        "problemMatcher": [],
+        "detail": "68 configurations x 5 folds, one test evaluation; writes evaluation/results/m4_sample/"
+      },
+      {
+        "label": "Milestone 4: figures",
+        "type": "process",
+        "command": "${workspaceFolder}/.venv/bin/python",
+        "windows": {
+          "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+        },
+        "args": [
+          "scripts/make_m4_figures.py",
+          "--results",
+          "evaluation/results/m4_sample"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PYTHONIOENCODING": "utf-8",
+            "PYTHONUNBUFFERED": "1"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "clear": true
+        },
+        "problemMatcher": [],
+        "detail": "Figures 1 and 2 of the report"
+      },
+      {
+        "label": "Milestone 4: report tables",
+        "type": "process",
+        "command": "${workspaceFolder}/.venv/bin/python",
+        "windows": {
+          "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+        },
+        "args": [
+          "scripts/make_m4_tables.py",
+          "--results",
+          "evaluation/results/m4_sample",
+          "--out",
+          "../experiments/tables"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PYTHONIOENCODING": "utf-8",
+            "PYTHONUNBUFFERED": "1"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "clear": true
+        },
+        "problemMatcher": [],
+        "detail": "Tables 1 and 2 of the report, in ../experiments/tables/"
+      },
+      {
+        "label": "Stage: prepare data",
+        "type": "process",
+        "command": "${workspaceFolder}/.venv/bin/python",
+        "windows": {
+          "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+        },
+        "args": [
+          "-m",
+          "src.main",
+          "prepare",
+          "--config",
+          "config/quickstart.yaml"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PYTHONIOENCODING": "utf-8",
+            "PYTHONUNBUFFERED": "1"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "clear": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Stage: train",
+        "type": "process",
+        "command": "${workspaceFolder}/.venv/bin/python",
+        "windows": {
+          "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+        },
+        "args": [
+          "-m",
+          "src.main",
+          "train",
+          "--config",
+          "config/quickstart.yaml"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PYTHONIOENCODING": "utf-8",
+            "PYTHONUNBUFFERED": "1"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "clear": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Stage: evaluate",
+        "type": "process",
+        "command": "${workspaceFolder}/.venv/bin/python",
+        "windows": {
+          "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+        },
+        "args": [
+          "-m",
+          "src.main",
+          "evaluate",
+          "--config",
+          "config/quickstart.yaml"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PYTHONIOENCODING": "utf-8",
+            "PYTHONUNBUFFERED": "1"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "clear": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Predict: running example (JSON)",
+        "type": "process",
+        "command": "${workspaceFolder}/.venv/bin/python",
+        "windows": {
+          "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+        },
+        "args": [
+          "-m",
+          "src.main",
+          "predict",
+          "--config",
+          "config/quickstart.yaml",
+          "--json"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PYTHONIOENCODING": "utf-8",
+            "PYTHONUNBUFFERED": "1"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "clear": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Predict: my own description",
+        "type": "process",
+        "command": "${workspaceFolder}/.venv/bin/python",
+        "windows": {
+          "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+        },
+        "args": [
+          "-m",
+          "src.main",
+          "predict",
+          "--config",
+          "config/quickstart.yaml",
+          "--text",
+          "${input:description}"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PYTHONIOENCODING": "utf-8",
+            "PYTHONUNBUFFERED": "1"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "clear": true
+        },
+        "problemMatcher": [],
+        "detail": "Prompts for a description and prints f(s)"
+      },
+      {
+        "label": "Figure 1 values",
+        "type": "process",
+        "command": "${workspaceFolder}/.venv/bin/python",
+        "windows": {
+          "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+        },
+        "args": [
+          "scripts/figure1_values.py"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PYTHONIOENCODING": "utf-8",
+            "PYTHONUNBUFFERED": "1"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "clear": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Rebuild Reddit sample from GitHub",
+        "type": "process",
+        "command": "${workspaceFolder}/.venv/bin/python",
+        "windows": {
+          "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+        },
+        "args": [
+          "scripts/build_public_sample.py",
+          "--out",
+          "data/raw/rebuilt_public_sample.csv"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PYTHONIOENCODING": "utf-8",
+            "PYTHONUNBUFFERED": "1"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "clear": true
+        },
+        "problemMatcher": [],
+        "detail": "Needs git; writes a copy, not the bundled file"
+      }
+    ],
+    "inputs": [
+      {
+        "id": "description",
+        "type": "promptString",
+        "description": "Describe the symptoms in one or two sentences",
+        "default": "I keep losing track of time, my heart races at work and I feel empty most days."
+      }
+    ]
+  }
+}
