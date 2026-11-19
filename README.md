@@ -3,6 +3,29 @@
 Multi-label text classification for distinguishing commonly confused mental health conditions (ADHD, anxiety, depression) from self-reported symptom descriptions, with extractive rationales highlighting the phrases that support each prediction.
 
 
+## Quick start (reviewers)
+
+Needs Python 3.10 or newer (3.12 or 3.13 reproduces the reported hashes exactly) and bash (Linux, macOS,
+WSL, or Git Bash on Windows). On Ubuntu/WSL, first: `sudo apt install python3-venv`.
+
+```bash
+git clone https://github.com/eduardokdp/Which-Condition-Fits-.git
+cd Which-Condition-Fits-/proposed-solution
+bash quickstart.sh      # Milestone 3: setup, 26 tests, pipeline, hash check, figures, one prediction (~2 min)
+bash reproduce_m4.sh    # Milestone 4: 5-fold CV grid for 7 methods, one test evaluation, figures, tables (~3 min)
+```
+
+Both scripts also work from the repository root (shortcuts with the same names); they always run inside
+`proposed-solution/`, create `proposed-solution/.venv`, and install the packages themselves. A successful run ends with:
+
+```
+== reproducibility check PASSED (Milestone 3 quickstart): identical to the reported run (6371861ba793...)
+== reproducibility check PASSED (m4_sample): identical to the reported run (c8c2b0fd9803...)
+```
+
+Manual installation, VS Code tasks and troubleshooting: [`proposed-solution/README.md`](proposed-solution/README.md)
+(Sections 5 and 6). Milestone 4 report and how its tables and figures are produced: [`experiments/`](experiments/).
+
 ## Overview
 
 Most existing approaches to mental health classification from text treat diagnosis as single-label, one condition versus healthy controls, or one condition among several. In practice, conditions like ADHD, anxiety, and depression share overlapping symptoms (e.g., restlessness, inattention, irritability), which makes single-label framing a poor match for how misdiagnosis actually happens.
@@ -21,11 +44,12 @@ This project proposes a multi-label classifier that:
 
 ## Project Approach
 
-The project was developed across three milestones:
+The project was developed across four milestones:
 
 1. **Problem Definition:** Identified the challenges of distinguishing overlapping mental health symptoms and established the project's motivation and objectives.
 2. **Literature Review:** Examined existing approaches to mental health classification, related research, and gaps in current methods.
 3. **Proposed Solution:** Developed the proposed classification approach, implemented the supporting code, and evaluated its performance.
+4. **Evaluation:** Compared the method with six baselines under one cross-validated protocol, studied its hyperparameters, and checked where it helps (report in `experiments/`, reproduced by `bash reproduce_m4.sh`).
 
 ## Technical Implementation
 
@@ -43,12 +67,12 @@ For more details, see the `proposed-solution/` directory.
 
 ## Team
 
-| Name | Milestone 1: Proposal | Milestone 2: Literature Review | Milestone 3: Proposed-Solution 
-|---|---|---|---|
-| Niyaaz Baines | Problem definition (1.1) | History, Abstract | Formal definition, Abstract
-| Eduardo Kallina de Paula | Motivation, motivating example, gaps in existing solutions (1.2–1.2.2) | Introduction, Positioning | Proposed Method, Algorithm, References
-| Thiago Vasconcelos Pinheiro Lopes | Formal problem definition, running example (1.3–1.3.1) | Hierarchy, Taxonomy | Pseudo-code, Implementation
-| Priyanshkumar Ghanshyambhai Patel | Abstract | Comparative Analysis, Table | Figure 1, Integration
+| Name | Milestone 1: Proposal | Milestone 2: Literature Review | Milestone 3: Proposed-Solution | Milestone 4: Evaluation |
+|---|---|---|---|---|
+| Niyaaz Baines | Problem definition (1.1) | History, Abstract | Formal definition, Abstract | Research questions (4.2), Introduction |
+| Eduardo Kallina de Paula | Motivation, motivating example, gaps in existing solutions (1.2–1.2.2) | Introduction, Positioning | Proposed Method, Algorithm, References | Baselines (4.4) |
+| Thiago Vasconcelos Pinheiro Lopes | Formal problem definition, running example (1.3–1.3.1) | Hierarchy, Taxonomy | Pseudo-code, Implementation | Benchmark dataset (4.3) |
+| Priyanshkumar Ghanshyambhai Patel | Abstract | Comparative Analysis, Table | Figure 1, Integration | Evaluation strategy and metrics (4.5), experiments, results |
 
 ## Repository Structure
 
@@ -66,8 +90,20 @@ For more details, see the `proposed-solution/` directory.
 │   ├── scripts/                       # Data, evaluation, and visualization scripts
 │   ├── tests/                         # Tests
 │   ├── evaluation/                    # Evaluation data, results, and reports
-│   ├── requirements.txt               # Python dependencies
-│   └── requirements-viz.txt           # Visualization dependencies
-├── experiments/                       # Milestone 4: Evaluation (Experimentation)
+│   ├── requirements.txt               # Python dependencies, compatible versions (Python 3.10+)
+│   ├── requirements-lock.txt          # Exact versions of the reported runs (Python 3.12/3.13)
+│   ├── requirements-viz.txt           # Visualization dependencies
+│   ├── CoRE.code-workspace            # VS Code workspace with ready-made tasks
+│   ├── quickstart.sh                  # Milestone 3 quick start
+│   └── reproduce_m4.sh                # Milestone 4 reproduction (runs scripts/reproduce_m4.sh)
+├── experiments/                       # Milestone 4: Evaluation report (main.tex, PDF, generated tables and figures)
+├── quickstart.sh                      # Shortcut: runs proposed-solution/quickstart.sh
+├── reproduce_m4.sh                    # Shortcut: runs proposed-solution/scripts/reproduce_m4.sh
 └── README.md                          # Project documentation
 ```
+
+## License
+
+Code: MIT (`proposed-solution/LICENSE`). Data: public Reddit posts redistributed by the GitHub projects listed
+in `proposed-solution/README.md` (Section 3), each under its own terms. Research prototype only; not a
+diagnostic tool.
