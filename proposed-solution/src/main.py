@@ -89,9 +89,17 @@ def cmd_all(cfg, args):
     cmd_predict(cfg, args)
 
 
+def cmd_experiment(cfg, args):
+    """Milestone 4: cross-validated grid, one refit per method, single test evaluation."""
+    if "experiment" not in cfg:
+        raise SystemExit(f"{args.config} has no 'experiment' section; use config/m4_sample.yaml or config/m4_rmhd.yaml")
+    from src.eval.experiment import run
+    run(cfg)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="python -m src.main", description="CoRE pipeline driver")
-    ap.add_argument("command", choices=["download", "prepare", "train", "evaluate", "predict", "all"])
+    ap.add_argument("command", choices=["download", "prepare", "train", "evaluate", "predict", "all", "experiment"])
     ap.add_argument("--config", default="config/quickstart.yaml")
     ap.add_argument("--text", help="predict: a single self-reported description")
     ap.add_argument("--input", help="predict: CSV file with one description per row")
@@ -103,7 +111,7 @@ def main(argv=None):
     set_seed(cfg["seed"])
     log.info("command=%s config=%s seed=%d", args.command, args.config, cfg["seed"])
     {"download": cmd_download, "prepare": cmd_prepare, "train": cmd_train, "evaluate": cmd_evaluate,
-     "predict": cmd_predict, "all": cmd_all}[args.command](cfg, args)
+     "predict": cmd_predict, "all": cmd_all, "experiment": cmd_experiment}[args.command](cfg, args)
 
 
 if __name__ == "__main__":
