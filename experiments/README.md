@@ -17,7 +17,12 @@ Report: [`4_Evaluation_Niyaaz_Eduardo_Thiago_Priyansh.pdf`](4_Evaluation_Niyaaz_
 From the repository root (or from `proposed-solution/`):
 
 ```bash
-bash reproduce_m4.sh
+bash reproduce_m4.sh                    # from the repository root or proposed-solution/ (= bash scripts/reproduce_m4.sh)
+                                        # setup -> 26 tests -> experiment -> hash check -> figures -> report tables
+# or step by step:
+python -m src.main experiment --config config/m4_sample.yaml
+python scripts/make_m4_figures.py --results evaluation/results/m4_sample
+python scripts/make_m4_tables.py  --results evaluation/results/m4_sample --out ../experiments/tables
 ```
 
 The script creates `proposed-solution/.venv`, installs the packages, runs the 26 tests, runs the
@@ -33,3 +38,66 @@ same report. Expected end of the output:
 The hash matches with the exact versions in `proposed-solution/requirements-lock.txt` (Python 3.12 or
 3.13, chosen automatically when available). With Python 3.10 or 3.11 the script installs compatible
 versions; the run completes, and the last decimals may differ.
+
+## Protocol ## 
+(`src/eval/protocol.py`, saved to `protocol.csv`). One 80/20 dev/test split stratified on
+the label set (seed 42); five stratified folds on the dev set, computed once and used by every method and
+configuration; in each round, features and model are fitted on the training folds minus a stratified 15%
+that is used only to tune the per-condition thresholds. The configuration with the best mean CV macro-F1
+is refitted on the dev set and evaluated once on the test set. `tests/test_m4.py` checks that no test post
+is used in any fit or tuning step, that every method sees the same folds, and that reruns are identical.
+
+## Methods ## 
+(`src/eval/registry.py`): CoRE, multiclass logistic regression (one condition per post),
+binary relevance, a single-order classifier chain, k-NN (cosine), linear SVM and Complement Naive Bayes.
+All share the same masked TF-IDF features and, if multi-label, CoRE's decision rule. Grids are in
+`config/m4_sample.yaml` (68 configurations, 340 fits).
+
+## Results ## 
+on the bundled sample (1,050 posts; 840 dev, 210 test; 95% bootstrap intervals):
+
+| Method | Selected setting | Macro-F1 (95% CI) | Macro AUC | Micro-F1 | Hamming loss | Recall on multi-condition posts |
+|---|---|---|---|---|---|---|
+| **CoRE** | C = 3, unigrams, out-of-fold inputs | **0.755** (0.715–0.790) | **0.865** | **0.750** | 0.211 | 0.766 |
+| Multiclass LR | C = 10, unigrams | 0.727 (0.674–0.778) | 0.863 | 0.725 | **0.194** | 0.447 |
+| Binary relevance | C = 3, uni+bigrams | 0.732 (0.677–0.778) | 0.854 | 0.731 | 0.213 | 0.723 |
+| Chain (1 order) | C = 3, unigrams | 0.737 (0.696–0.771) | 0.857 | 0.730 | 0.237 | **0.787** |
+| Linear SVM | C = 10 | 0.733 (0.684–0.775) | 0.855 | 0.730 | 0.221 | 0.723 |
+| Naive Bayes | α = 0.1 | 0.686 (0.638–0.728) | 0.831 | 0.682 | 0.270 | 0.638 |
+| k-NN | k = 15 | 0.630 (0.577–0.680) | 0.778 | 0.632 | 0.303 | 0.702 |
+
+CoRE's lead over the multiclass model, binary relevance, the single-order chain and the SVM is not
+significant (paired bootstrap intervals include zero); it is significantly better than Naive Bayes and
+k-NN. Its advantage comes from posts with several conditions (macro-F1 0.835 vs 0.612 for the multiclass
+model), at the cost of predicting anxiety with depression too often. Full outputs:
+
+| File in `evaluation/results/m4_sample/` | Content |
+|---|---|
+| `data_card.json` | dataset statistics and posts removed by each cleaning step |
+| `protocol.csv` | dev/test part, fold and threshold-part membership of every post |
+| `cv_results.csv`, `cv_summary.csv` | every (method, configuration, fold) score; means, s.d. and the selected setting |
+| `best_params.json` | selected configuration per method |
+| `test_predictions.csv` | scores and decisions of every method on the test posts |
+| `test_metrics.json`, `test_metrics.csv` | metrics, bootstrap intervals, paired differences, confusion matrices, subgroups, timing |
+| `EXPECTED_SHA256` | hash of `test_predictions.csv` for the reported run |
+| `figures/` | `rq2_sensitivity` (Figure 1) and `label_set_confusion` (Figure 2), PDF and PNG |
+
+**Second dataset.** `config/m4_rmhd.yaml` runs the same experiment on the Reddit Mental Health Dataset
+(Low et al., 2020; 3,000 posts per community). Download the three 2019 files first
+(`bash scripts/download_data.sh`, about 168 MB, not committed); `scripts/reproduce_m4.sh` then runs it
+automatically. It was not part of the submitted report.
+
+**Reproducibility (Milestone 3).** Every random operation is seeded from `seed` in the config (`src/cmn/seed.py`,
+splits, cross-fitting folds, bootstrap, random rationales), package versions are pinned, and the
+evaluation writes the SHA-256 of its predictions. With the same data, code, config, seed, and package
+versions, a rerun gives `6371861ba7936c0880573caa24c5d576f5e386f477e7faf863195b69189f0aa5`; other
+operating systems or maths libraries can change the last decimal of a probability and therefore the hash.
+
+## Team
+
+| Name | Milestone 1: Proposal | Milestone 2: Literature Review | Milestone 3: Proposed Solution | Milestone 4: Evaluation |
+|---|---|---|---|---|
+| Niyaaz Baines | Problem definition (1.1) | History, Abstract | Formal definition (3.1), abstract, introduction | Research questions (4.2), introduction |
+| Eduardo Kallina de Paula | Motivation, motivating example, gaps in existing solutions (1.2–1.2.2) | Introduction, Positioning | Algorithm (3.2), references | Baselines (4.4) |
+| Thiago Vasconcelos Pinheiro Lopes | Formal problem definition, running example (1.3–1.3.1) | Hierarchy, Taxonomy | Pseudo-code (3.3), implementation section | Benchmark dataset (4.3) |
+| Priyanshkumar Ghanshyambhai Patel (lead) | Abstract | Comparative Analysis, Table | Figure 1 (3.4), README, submission | Evaluation strategy and metrics (4.5), experiments, results, submission |
